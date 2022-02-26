@@ -1,5 +1,5 @@
-% page = "home"
-% include('templates/_header.html')
+{% set page = 'home' %}
+{% include '_header.html' %}
 <main>
     <article>
         <header>
@@ -15,4 +15,4 @@
         </footer>
     </article>
 </main>
-% include('templates/_footer.html')
+{% include '_footer.html' %}

@@ -3,14 +3,14 @@
 __docformat__ = "restructuredtext"
 
 # Standard library
+import os
 from pathlib import Path
 import sys
 
 # Dependencies
-from bottle import abort, get, run, static_file, template
+import flask
+from flask import Flask
 
-TEMPLATE_DIR = "templates"
-STATIC_DIR = "static"
 MIMETYPES = {
     "css": "text/css",
     "js": "text/javascript",
@@ -18,30 +18,14 @@ MIMETYPES = {
     "jpg": "image/jpeg",
     "gif": "image/gif",
     "svg": "image/svg+xml"}
-HOST = "localhost"
-PORT_START = 8000
-PORT_STOP = 10000
+
+APP = Flask(__name__,
+            template_folder=f"{os.getcwd()}/templates",
+            static_folder=f"{os.getcwd()}/static")
 
 
-def main():
-    """Main CLI entrypoint"""
-
-    # Automatically try to find available port
-    for port in range(PORT_START, PORT_STOP):
-        try:
-            run(host=HOST, port=port, debug=True)
-            sys.exit(0)
-        
-        except OSError:
-            continue
-
-    else:
-        print("A suitable port could not be found")
-        sys.exit(1)
-
-
-@get(f"/<path:path>")
-@get(f"/")
+@APP.get(f"/<path:path>")
+@APP.get(f"/")
 def doc(path=""):
     """Route templates or static files within CWD"""
 
@@ -50,7 +34,7 @@ def doc(path=""):
 
     # Ignore private templates
     if path and path[0] == "_":
-        abort(403, "Private template.")
+        flask.abort(403, "Private template.")
 
     try:
         extension = path.split("/")[-1].split(".")[1]
@@ -58,17 +42,13 @@ def doc(path=""):
     # If no extension...
     except IndexError:
         # Treat as directory
-        return template(f"{TEMPLATE_DIR}/{path}/index.html")
+        return flask.render_template(f"{path}/index.html")
 
     # If there is an extension...
     else:
         if extension == "html":
-            return template(f"{TEMPLATE_DIR}/{path}")
+            return flask.render_template(f"{path}")
 
         elif extension in MIMETYPES.keys():
-            return static_file(
-                path, root=f"{STATIC_DIR}/", mimetype=MIMETYPES[extension])
-
-
-if __name__ == "__main__":
-    main()
+            return flask.send_from_directory(APP.static_folder, path,
+                                             mimetype=MIMETYPES[extension])
