@@ -1,4 +1,4 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import mimetypes
 import socket
 
@@ -7,8 +7,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape, Template
 TEMPLATE_MIMETYPES = ("text/html",)
 
 
-class Server(HTTPServer):
-    """A simple extension of the built-in `HTTPServer` to always use the same
+class Server(ThreadingHTTPServer):
+    """A simple extension of the built-in `ThreadingHTTPServer` to always use the same
     handler."""
 
     def __init__(self, host: str, port: int) -> None:
