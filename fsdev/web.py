@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import mimetypes
+from re import template
 
 from . import errors
 from . import fs
@@ -11,8 +12,12 @@ class Server(ThreadingHTTPServer):
     """A simple extension of the built-in `ThreadingHTTPServer` to always use the same
     handler."""
 
-    def __init__(self, host: str, port: int) -> None:
+    def __init__(self, host: str, port: int,
+                 template_dir: str, static_dir: str) -> None:
         super().__init__((host, port), Handler)
+
+        self.template_dir = template_dir
+        self.static_dir = static_dir
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -29,7 +34,9 @@ class Handler(BaseHTTPRequestHandler):
         else:
             status = 200
             mimetype, _ = mimetypes.guess_type(self.path)
-            contents = fs.read(self.path, is_template(mimetype))
+            contents = fs.read(self.path, is_template(mimetype),
+                               self.server.template_dir,
+                               self.server.static_dir)
 
         # Serve contents
         self.send_response(status)

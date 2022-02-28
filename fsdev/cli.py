@@ -1,5 +1,9 @@
 from argparse import ArgumentParser
+from os import environ, stat
+from pathlib import Path
+from re import template
 
+from . import fs
 from .web import Server
 
 HOST = "localhost"
@@ -11,20 +15,28 @@ PARSER.add_argument("command", choices=("serve", "build"),
 
 
 def run():
+    # Get environment
+    src_dir = Path(environ.get("SRC_DIR", "."))
+
+    # Get CLI args
     args = PARSER.parse_args()
 
+    template_dir = src_dir/"templates"
+    static_dir = src_dir/"static"
+
+    # Route commands
     if args.command == "serve":
-        serve()
+        serve(template_dir, static_dir)
     
     elif args.command == "build":
-        build()
+        build(template_dir, static_dir)
 
 
-def serve():
+def serve(template_dir, static_dir):
     print(f"Server started at http://{HOST}:{PORT}\n\n"
             "  Ctrl+C to exit\n")
 
-    server = Server(HOST, PORT)
+    server = Server(HOST, PORT, template_dir, static_dir)
 
     try:
         server.serve_forever()
@@ -34,5 +46,5 @@ def serve():
         print("Server stopped.")
 
 
-def build():
-    raise NotImplemented()
+def build(template_dir, static_dir):
+    fs.build(template_dir, static_dir)
