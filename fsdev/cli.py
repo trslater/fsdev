@@ -1,18 +1,30 @@
+from argparse import ArgumentParser
+
 from .server import Server
 
 HOST = "localhost"
 PORT = 8000
+PARSER = ArgumentParser(description="A simple filesystem-based dev server.")
+PARSER.add_argument("command", choices=("serve", "build"),
+                    help=("build outputs a static site to a build directory,"
+                          "and serve starts a dev server for the site."))
 
 
 def run():
-    print(f"Server started at http://{HOST}:{PORT}\n\n"
-          "  Ctrl+C to exit\n")
+    args = PARSER.parse_args()
 
-    server = Server(HOST, PORT)
+    if args.command == "serve":
+        print(f"Server started at http://{HOST}:{PORT}\n\n"
+            "  Ctrl+C to exit\n")
 
-    try:
-        server.serve_forever()
+        server = Server(HOST, PORT)
 
-    except KeyboardInterrupt:
-        server.server_close()
-        print("Server stopped.")
+        try:
+            server.serve_forever()
+
+        except KeyboardInterrupt:
+            server.server_close()
+            print("Server stopped.")
+    
+    elif args.command == "build":
+        raise NotImplemented()
