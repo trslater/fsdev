@@ -34,14 +34,14 @@ class Handler(BaseHTTPRequestHandler):
                 loader=FileSystemLoader("templates"),
                 autoescape=select_autoescape())
             template = env.get_template(f".{self.path}")
-            contents = template.render().encode()
+            contents = template.render()
         
         # Treat everything else as a static file
         else:
             # Get contents from file
-            with open(f"static{self.path}", "rb") as f:
+            with open(f"static{self.path}", "r") as f:
                 contents = f.read()
 
         # Serve contents
-        self.wfile.write(contents)
+        self.wfile.write(contents.encode())
     
