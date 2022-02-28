@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import mimetypes
 
+from . import errors
 from . import fs
 
 TEMPLATE_MIMETYPES = ("text/html",)
@@ -16,21 +17,31 @@ class Server(ThreadingHTTPServer):
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Assume everything works
-        self.send_response(200)
-
         # Handle indexes
         self.path += "index.html" if self.path[-1] == "/" else ""
 
-        # Discover and set appropriate MIME type
-        mimetype, _ = mimetypes.guess_type(self.path)
-        self.send_header("Content-type", mimetype)
-        self.end_headers()
+        # If partial
+        if is_partial(self.path):
+            status = 403
+            mimetype = "text/html"
+            contents = errors.E403
 
-        is_template = mimetype in TEMPLATE_MIMETYPES
-
-        contents = fs.read(self.path, is_template)
+        else:
+            status = 200
+            mimetype, _ = mimetypes.guess_type(self.path)
+            contents = fs.read(self.path, is_template(mimetype))
 
         # Serve contents
+        self.send_response(status)
+        self.send_header("Content-type", mimetype)
+        self.end_headers()
         self.wfile.write(contents.encode())
+
+
+def is_partial(path):
+    return path[1] == "_"
+
+
+def is_template(mimetype):
+    return mimetype in TEMPLATE_MIMETYPES
     
