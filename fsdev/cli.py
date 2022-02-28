@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from .server import Server
+from .web import Server
 
 HOST = "localhost"
 PORT = 8000
