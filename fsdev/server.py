@@ -1,8 +1,7 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import mimetypes
-import socket
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape, Template
+from . import fs
 
 TEMPLATE_MIMETYPES = ("text/html",)
 
@@ -28,19 +27,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-type", mimetype)
         self.end_headers()
 
-        if mimetype in TEMPLATE_MIMETYPES:
-            # Get contents from Jinja template
-            env = Environment(
-                loader=FileSystemLoader("templates"),
-                autoescape=select_autoescape())
-            template = env.get_template(f".{self.path}")
-            contents = template.render()
-        
-        # Treat everything else as a static file
-        else:
-            # Get contents from file
-            with open(f"static{self.path}", "r") as f:
-                contents = f.read()
+        is_template = mimetype in TEMPLATE_MIMETYPES
+
+        contents = fs.read(self.path, is_template)
 
         # Serve contents
         self.wfile.write(contents.encode())
