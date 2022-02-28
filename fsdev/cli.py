@@ -16,27 +16,24 @@ PARSER.add_argument("command", choices=("serve", "build"),
 
 def run():
     # Get environment
-    src_dir = Path(environ.get("SRC_DIR", "."))
+    root = Path(environ.get("SITE_ROOT", "."))
 
     # Get CLI args
     args = PARSER.parse_args()
 
-    template_dir = src_dir/"templates"
-    static_dir = src_dir/"static"
-
     # Route commands
     if args.command == "serve":
-        serve(template_dir, static_dir)
+        serve(root)
     
     elif args.command == "build":
-        build(template_dir, static_dir)
+        build(root)
 
 
-def serve(template_dir, static_dir):
+def serve(root):
     print(f"Server started at http://{HOST}:{PORT}\n\n"
             "  Ctrl+C to exit\n")
 
-    server = Server(HOST, PORT, template_dir, static_dir)
+    server = Server(HOST, PORT, root)
 
     try:
         server.serve_forever()
@@ -46,5 +43,5 @@ def serve(template_dir, static_dir):
         print("Server stopped.")
 
 
-def build(template_dir, static_dir):
-    fs.build(template_dir, static_dir)
+def build(root):
+    fs.build(root)
