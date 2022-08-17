@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "fsdev"
-version = "0.1.0"
+version = "0.1.1"
 description = "A super simple filesystem dev server"
 authors = ["Tristan Slater <hello@trslater.ca>"]
 license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
