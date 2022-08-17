@@ -1,7 +1,6 @@
 from argparse import ArgumentParser
-from os import environ, stat
+from os import environ
 from pathlib import Path
-from re import template
 
 from . import fs
 from .web import Server
