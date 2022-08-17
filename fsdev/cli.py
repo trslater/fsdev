@@ -1,3 +1,5 @@
+"""fsdev CLI"""
+
 from argparse import ArgumentParser
 from os import environ
 from pathlib import Path
@@ -14,6 +16,11 @@ PARSER.add_argument("command", choices=("serve", "build"),
 
 
 def run():
+    """CLI entrypoint
+    
+    Parses args and calls commands.
+    """
+
     # Get environment
     root = Path(environ.get("SITE_ROOT", "."))
 
@@ -29,6 +36,11 @@ def run():
 
 
 def serve(root):
+    """Serve command
+    
+    Creates a server on `HOST`:`PORT` serving files from `root` and
+    start it"""
+
     print(f"Server started at http://{HOST}:{PORT}\n\n"
             "  Ctrl+C to exit\n")
 
@@ -43,4 +55,6 @@ def serve(root):
 
 
 def build(root):
+    """Build command"""
+
     fs.build(root)
